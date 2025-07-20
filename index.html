@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Automata Fix</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+</head>
+<body>
+  <div id="anti-cheat-alert" class="anti-cheat-alert" style="display:none;">⚠️ Cheating detected!</div>
+  <div class="question-switcher" id="question-switcher"></div>
+  <div class="container">
+    <header class="card header">
+      <h1>Automata Fix</h1>
+      <div class="timer" id="timer">30:00</div>
+      <button id="theme-toggle">🌙</button>
+    </header>
+    <section class="card" id="editor-section">
+      <div class="section-title" id="question-title">Loading...</div>
+      <div class="editor-container">
+        <select id="language-selector">
+          <option value="python">Python</option>
+          <option value="c">C</option>
+          <option value="cpp">C++</option>
+          <option value="java">Java</option>
+        </select>
+        <div id="editor" class="editor"></div>
+      </div>
+    </section>
+    <section class="card io-section">
+      <div><h4>Input</h4><pre id="input"></pre></div>
+      <div><h4>Expected Output</h4><pre id="expected"></pre></div>
+      <div>
+        <h4>Your Output</h4>
+        <pre id="output">// Output will appear here</pre>
+        <div id="message" class="message"></div>
+      </div>
+    </section>
+    <div class="actions">
+      <button id="run-btn" class="run-btn">Run Code</button>
+      <button id="submit-btn" class="submit-btn" disabled>Submit Fix</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+* { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #181a1b;
+  color: #f5f6fa;
+  margin: 0;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+body.light {
+  background: #f4f4f4;
+  color: #222;
+}
+.container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.card {
+  background: #23272f;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  margin-bottom: 1.5rem;
+  transition: background 0.3s;
+}
+body.light .card {
+  background: #fff;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.timer {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+#theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: inherit;
+}
+.section-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.7rem;
+}
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+#editor {
+  height: 320px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #1e1e1e;
+}
+body.light #editor {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+}
+#language-selector {
+  width: 120px;
+  align-self: flex-end;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-size: 1rem;
+}
+.io-section {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+.io-section > div {
+  flex: 1;
+}
+pre {
+  background: #23272f;
+  padding: 0.7rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  min-height: 2.5em;
+  color: #f5f6fa;
+}
+body.light pre {
+  background: #ececec;
+  color: #222;
+}
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.run-btn, .submit-btn {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.run-btn {
+  background: #3b82f6;
+  color: #fff;
+}
+.submit-btn {
+  background: #10b981;
+  color: #fff;
+}
+.run-btn:active, .submit-btn:active {
+  transform: scale(0.97);
+}
+.anti-cheat-alert {
+  background: #fbbf24;
+  color: #222;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  margin: 1rem auto;
+  text-align: center;
+  font-weight: bold;
+  max-width: 400px;
+  animation: shake 0.3s;
+}
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px);}
+  50% { transform: translateX(5px);}
+  75% { transform: translateX(-5px);}
+  100% { transform: translateX(0);}
+}
+.message {
+  margin-top: 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  display: none;
+}
+.message.success {
+  background: #10b981;
+  color: #fff;
+  display: block;
+}
+.message.error {
+  background: #ef4444;
+  color: #fff;
+  display: block;
+}
+.question-switcher {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: #ef4444;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  padding: 0.5rem 1rem;
+  z-index: 1000;
+  display: flex;
+  gap: 0.5rem;
+}
+.question-btn {
+  background: #fff;
+  color: #ef4444;
+  border: none;
+  border-radius: 50%;
+  width: 2.2rem;
+  height: 2.2rem;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+.question-btn.active {
+  background: #ef4444;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+@media (max-width: 900px) {
+  .io-section { flex-direction: column; gap: 1rem; }
+  .question-switcher { top: 8px; right: 8px; }
+}
