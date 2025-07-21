@@ -37,29 +37,5 @@
     },
     "input": "madam",
     "expected_output": "Yes"
-  },
-  {
-    "id": 3,
-    "title": "Fix Even or Odd (C)",
-    "language": "c",
-    "buggy_code": "#include<stdio.h>\nint main() {\n  int num;\n  scanf(\"%d\", &num);\n  if(num % 2 = 0)\n    printf(\"Even\\n\");\n  else\n    printf(\"Odd\\n\");\n  return 0;\n}",
-    "input": "7",
-    "expected_output": "Odd"
-  },
-  {
-    "id": 4,
-    "title": "Fix Reverse a String (Python)",
-    "language": "python",
-    "buggy_code": "s = input()\nprint(s[::2])",
-    "input": "hello",
-    "expected_output": "olleh"
-  },
-  {
-    "id": 5,
-    "title": "Fix Maximum of Two (Java)",
-    "language": "java",
-    "buggy_code": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int a = sc.nextInt();\n    int b = sc.nextInt();\n    if (a < b)\n      System.out.println(a);\n    else\n      System.out.println(b);\n  }\n}",
-    "input": "10\n20",
-    "expected_output": "20"
   }
 ]

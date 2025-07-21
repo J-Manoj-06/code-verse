@@ -112,6 +112,15 @@ function renderSwitcher() {
   });
 }
 
+// Track submitted questions
+let submittedQuestions = new Set();
+
+// Update question count display
+function updateQuestionCount() {
+  const countEl = document.getElementById('question-count');
+  countEl.textContent = `Q${currentQuestionIdx + 1}/3`;
+}
+
 // Render question (keep language unless first load)
 function renderQuestion(idx, langToUse) {
   currentQuestionIdx = idx;
@@ -134,6 +143,7 @@ function renderQuestion(idx, langToUse) {
     btn.classList.toggle('active', i === idx);
   });
   saveCodeStatesToStorage();
+  updateQuestionCount();
 }
 
 // Language selector
@@ -216,30 +226,121 @@ document.addEventListener('paste', preventCopyPaste);
 })();
 
 // Run/Submit
+// Gemini API Key placeholder (DO NOT hardcode your key here)
+let GEMINI_API_KEY = 'AIzaSyBfU7oIphxoN_0N0T0hNpzP74CRZJXNv2Y';
+// Set your Gemini API key in the variable above, e.g. from a secure input or environment variable
+
+// Gemini-powered code output simulation
+async function runGemini(source_code, lang, stdin) {
+  // Map language names to display names for prompt clarity
+  const langDisplay = { python: 'Python', java: 'Java', c: 'C', cpp: 'C++', javascript: 'JavaScript' }[lang] || lang;
+  // Construct strict prompt for Gemini
+  const prompt = `You are a strict code compiler and executor. Given the following code and input, return ONLY the output as if it was run in a real terminal. No explanations, no markdown, no commentary. If there is a compile error, return only the error message as a compiler would.\n\nLanguage: ${langDisplay}\nCode:\n${source_code}\nInput:\n${stdin}\n\nOutput:`;
+  try {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    // Gemini's response format
+    let output = '';
+    if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+      output = data.candidates[0].content.parts[0].text.trim();
+    }
+    if (!output) output = '(No response from Gemini)';
+    return { stdout: output };
+  } catch (error) {
+    showMessage(`⚠️ Gemini Error: ${error.message}`, 'error');
+    return { stdout: '', stderr: error.message };
+  }
+}
+
 runBtn.onclick = async () => {
   const q = questions[currentQuestionIdx];
   const lang = languageSelector.value;
   const code = editor.getValue();
   codeStates[q.id][lang] = code;
   saveCodeStatesToStorage();
-  outputEl.textContent = "// Running...";
+  outputEl.textContent = '// AI is compiling...';
   showMessage('', '');
   submitBtn.disabled = true;
-  const result = await runJudge0(code, lang, q.input);
-  const userOutput = (result.stdout || result.compile_output || result.stderr || "").trim();
-  outputEl.textContent = userOutput;
+  // Scroll to output for better UX
+  outputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const result = await runGemini(code, lang, q.input);
+  const userOutput = (result.stdout || result.stderr || '').trim();
+  outputEl.textContent = userOutput || '(No response from Gemini)';
   if (userOutput === q.expected_output.trim()) {
-    showMessage("✅ Output matches expected!", "success");
+    showMessage('✅ Output matches expected!', 'success');
     submitBtn.disabled = false;
   } else {
-    showMessage("❌ Output does not match.", "error");
+    showMessage('❌ Output does not match.', 'error');
   }
 };
 
 submitBtn.onclick = () => {
   showMessage("🎉 Code submitted!", "success");
   submitBtn.disabled = true;
+  // Track submission
+  const q = questions[currentQuestionIdx];
+  submittedQuestions.add(q.id);
+  // If all 3 questions are submitted
+  if (submittedQuestions.size === 3) {
+    if (!getCheatingFlag()) {
+      // Hide anti-cheat alert if visible
+      alertEl.style.display = 'none';
+      showMessage('No cheating detected! 🎉', 'success');
+      triggerCelebration();
+    }
+  }
 };
+
+// Colorful spray celebration
+function triggerCelebration() {
+  const container = document.getElementById('celebration');
+  container.innerHTML = '';
+  container.style.display = 'block';
+  // Spray from both sides
+  for (let i = 0; i < 60; i++) {
+    const sprayL = document.createElement('div');
+    const sprayR = document.createElement('div');
+    sprayL.className = 'spray';
+    sprayR.className = 'spray';
+    const color = `hsl(${Math.random()*360},90%,60%)`;
+    sprayL.style.background = color;
+    sprayR.style.background = color;
+    sprayL.style.left = '0';
+    sprayR.style.right = '0';
+    sprayL.style.top = sprayR.style.top = `${Math.random()*100}vh`;
+    sprayL.style.width = sprayR.style.width = '12px';
+    sprayL.style.height = sprayR.style.height = '12px';
+    sprayL.style.position = sprayR.style.position = 'absolute';
+    sprayL.style.borderRadius = sprayR.style.borderRadius = '50%';
+    sprayL.style.opacity = sprayR.style.opacity = '0.85';
+    // Animate
+    sprayL.animate([
+      { transform: 'translateX(0)', opacity: 1 },
+      { transform: `translateX(${window.innerWidth/2-40}px)`, opacity: 0 }
+    ], { duration: 1200 + Math.random()*800, fill: 'forwards' });
+    sprayR.animate([
+      { transform: 'translateX(0)', opacity: 1 },
+      { transform: `translateX(-${window.innerWidth/2-40}px)`, opacity: 0 }
+    ], { duration: 1200 + Math.random()*800, fill: 'forwards' });
+    container.appendChild(sprayL);
+    container.appendChild(sprayR);
+  }
+  setTimeout(() => { container.style.display = 'none'; }, 2200);
+}
+
+// Add spray CSS
+(function addSprayCSS() {
+  const style = document.createElement('style');
+  style.textContent = `.spray { pointer-events:none; z-index:2001; }`;
+  document.head.appendChild(style);
+})();
 
 function showMessage(msg, type) {
   messageEl.textContent = msg;
@@ -247,27 +348,15 @@ function showMessage(msg, type) {
   messageEl.style.display = msg ? "block" : "none";
 }
 
-async function runJudge0(source_code, lang, stdin) {
-  const langMap = { "python": 71, "java": 62, "c": 50, "cpp": 54, "javascript": 63 };
-  const language_id = langMap[lang];
-  try {
-    const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-RapidAPI-Key": "138995742cmsh1936e58b6554d68p13c193jsnbbe4996c7812", // <-- Replace with your RapidAPI key
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
-      },
-      body: JSON.stringify({ source_code, language_id, stdin })
-    });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    showMessage(`⚠️ Judge0 Error: ${error.message}`, "error");
-    return { stdout: "", compile_output: "", stderr: error.message };
-  }
-}
-
 function getMonacoLang(lang) {
   return { "python": "python", "java": "java", "c": "c", "cpp": "cpp", "javascript": "javascript" }[lang];
 }
+
+// Update question count on load
+(function waitForQuestions() {
+  if (questions && questions.length) {
+    updateQuestionCount();
+  } else {
+    setTimeout(waitForQuestions, 100);
+  }
+})();
